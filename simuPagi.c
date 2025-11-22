@@ -56,6 +56,23 @@ int selecionaVitimaFIFO(){
     return v;
 }
 
+int selecionaVitimaClock(){
+    while(1){
+        int v = posiClock;
+        int idv = idFrame[v];
+        int paginav = numPagina_Frame[v];
+        int idProcv = buscaProcesso(idv);
+
+        if(R_Pagina[idProcv][paginav] == 0){
+            posiClock = (posiClock + 1) % nFrame;
+            return v;
+        }
+
+        R_Pagina[idProcv][paginav] = 0;
+        posiClock = (posiClock + 1) % nFrame;
+    }
+}
+
 void fifo(int id, int ende){
     total_acessos++;
     int idProc = buscaProcesso(id);
@@ -98,6 +115,53 @@ void fifo(int id, int ende){
 
     printf("Page FAULT: Memoria cheia. Pagina %d (PID %d) (Frame %d) sera desalocada -> Pagina %d (PID %d) alocada no frame %d\n", paginaAntiga, idAntigo, vitima, pagina, id, vitima);
 
+}
+
+void clock(int id, int ende){
+    total_acessos++;
+    int idProc = buscaProcesso(id);
+    int pagina = ende / tamPagina;
+    int deslocamento = ende % tamPagina;
+
+    printf("Acesso: PID %d, Endereço %d (Pagina %d, Deslocamento: %d) -> ", id, ende, pagina, deslocamento);
+
+    if(paginaCarregada[idProc][pagina]){
+        R_Pagina[idProc][pagina] = 1;
+        printf("HIT: Página %d (PID %d) já está no Frame %d\n", pagina, id, framePagina[idProc][pagina]);
+        return;
+    }
+
+    total_faults++;
+    int f = buscarFrameLivre();
+    if(f != -1){
+        frameLivre[f] = 0;
+        idFrame[f] = id;
+        numPagina_Frame[f] = pagina;
+
+        paginaCarregada[idProc][pagina] = 1;
+        framePagina[idProc][pagina] = f;
+        R_Pagina[idProc][pagina] = 1;
+
+        printf("PAGE FAULT -> Página %d (PID %d) alocada no Frame livre %d\n", pagina, id, f);
+        return;
+    }
+
+    int vitima = selecionaVitimaClock();
+    int idAntigo = idFrame[vitima];
+    int paginaAntiga = numPagina_Frame[vitima];
+    int idProcAntigo = buscaProcesso(idAntigo);
+
+    paginaCarregada[idProcAntigo][paginaAntiga] = 0;
+    R_Pagina[idProcAntigo][paginaAntiga] = 0;
+
+    idFrame[vitima] = id;
+    numPagina_Frame[vitima] = pagina;
+
+    paginaCarregada[idProc][pagina] = 1;
+    framePagina[idProc][pagina] = vitima;
+    R_Pagina[idProc][pagina] = 1;
+
+    printf("PAGE FAULT -> Memória cheia. Página %d (PID %d) (Frame %d) será desalocada. -> Página %d (PID %d) alocada no Frame %d\n", paginaAntiga, idAntigo, vitima, pagina, id, vitima);
 
 }
 
@@ -160,7 +224,9 @@ int main(int argc, char *argv[]){
         if(strcmp(alg, "fifo") == 0){
             fifo(id,ende);
         }
-
+        else if(strcmp(alg, "clock") == 0){
+            clock(id,ende);
+        }
         else{
             printf("Algoritimo invalido\n");
             fclose(fa);
@@ -170,7 +236,7 @@ int main(int argc, char *argv[]){
     fclose(fa);
 
 
-    printf("\nTeste com o %s:\n", alg);
+    printf("\nTeste com o algoritimo %s:\n", alg);
     printf("----Total de acessos: %d\n", total_acessos);
     printf("----Total de Page Faults: %d\n", total_faults);
 
