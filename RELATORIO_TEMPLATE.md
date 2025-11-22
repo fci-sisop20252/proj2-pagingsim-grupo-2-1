@@ -2,14 +2,14 @@
 
 **Disciplina:** Sistemas Operacionais
 **Professor:** Lucas Figueiredo
-**Data:**
+**Data:** 20/11/2025
 
 ## Integrantes do Grupo
 
-- Nome Completo - Matrícula
-- Nome Completo - Matrícula
-- Nome Completo - Matrícula
-- Nome Completo - Matrícula
+- Caio Cesar Navarro Pugliese       RA: 10436413
+- Erik Dong Kyu Kang                RA: 10439715
+- Matheus Lemos Rosal do valle      RA: 10442011
+- Rodrigo Daiske Uehara             RA: 10440295
 
 ---
 
@@ -17,32 +17,30 @@
 
 ### 1.1 Compilação
 
-Descreva EXATAMENTE como compilar seu projeto. Inclua todos os comandos necessários.
-
-**Exemplo:**
-```bash
-gcc -o simulador simulador.c
-```
-
-ou
-
-```bash
-make
-```
+gcc -o simuPagi simuPagi.c
 
 ### 1.2 Execução
 
 Forneça exemplos completos de como executar o simulador.
 
-**Exemplo com FIFO:**
-```bash
-./simulador fifo tests/config_1.txt tests/acessos_1.txt
-```
+FIFO:
 
-**Exemplo com Clock:**
-```bash
-./simulador clock tests/config_1.txt tests/acessos_1.txt
-```
+./simuPagi fifo tests/config_1.txt tests/acessos_1.txt
+./simuPagi fifo tests/config_2.txt tests/acessos_2.txt
+./simuPagi fifo tests/config_3.txt tests/acessos_3.txt
+./simuPagi fifo tests/config_4.txt tests/acessos_4.txt
+./simuPagi fifo tests/config_5.txt tests/acessos_5.txt
+./simuPagi fifo tests/config_6.txt tests/acessos_6.txt
+
+
+CLOCK:
+
+./simuPagi clock tests/config_1.txt tests/acessos_1.txt
+./simuPagi clock tests/config_2.txt tests/acessos_2.txt
+./simuPagi clock tests/config_3.txt tests/acessos_3.txt
+./simuPagi clock tests/config_4.txt tests/acessos_4.txt
+./simuPagi clock tests/config_5.txt tests/acessos_5.txt
+./simuPagi clock tests/config_6.txt tests/acessos_6.txt
 
 ---
 
@@ -172,17 +170,36 @@ Com base nos resultados acima, responda:
 Descreva o maior desafio técnico que seu grupo enfrentou durante a implementação:
 
 - Qual foi o problema?
+
+   Como começar a codar, nao sabiamos como começar o codigo.
+
 - Como identificaram o problema?
+
+   Ao tentarmos iniciar o projeto nao saimos do lugar ficamos com um vazio na cabeça.
+
 - Como resolveram?
+
+   Resolvemos ceder e perguntar ao Gemini por onde poderiamos começar, e a partir da resposta dele conseguimos proceder.
+
 - O que aprenderam com isso?
+
+   Que a parte mais dificil de programar algo do zero mesmo sabendo a logica e o que queremos fazer é iniciar o codigo.
 
 ### 4.2 Principal Aprendizado
 
 Descreva o principal aprendizado sobre gerenciamento de memória que vocês tiveram com este projeto:
 
 - O que vocês não entendiam bem antes e agora entendem?
+
+   Como funciona a paginação e a substituição na tabela de paginas.
+
 - Como este projeto mudou sua compreensão de memória virtual?
+
+   Ele mudou meu entendimento de como ela é organizada e gerida.
+
 - Que conceito das aulas ficou mais claro após a implementação?
+
+   A paginação ficou mais clara, alem do funcionamento do CLOCK.
 
 ---
 
@@ -219,8 +236,11 @@ Antes de submeter, verifique:
 
 ---
 ## Referências
-Liste aqui quaisquer referências que utilizaram para auxiliar na implementação (livros, artigos, sites, **links para conversas com IAs.**)
 
+Gemini: https://gemini.google.com/share/d45e35cd1e2d
+Sobre argc e argv: https://linguagemc.com.br/argumentos-em-linha-de-comando/
+Logica geral de paginação: https://www.canva.com/design/DAG2-rwIcL0/S9Nu66vqoRgZcWFkelYRLQ/edit
+Logica do CLOCK: https://www.canva.com/design/DAG3A6vEFAM/HYeVocOX1Onnm6Q7WOSenw/edit
 
 ---
 
