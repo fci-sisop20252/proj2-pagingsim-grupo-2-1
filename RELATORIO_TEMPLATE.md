@@ -52,12 +52,32 @@ Descreva as estruturas de dados que você escolheu para representar:
 
 **Tabela de Páginas:**
 - Qual estrutura usou? (array, lista, hash map, etc.)
+  R: Matrizes e arrays
+  
 - Quais informações armazena para cada página?
+  
+  paginaCarregada[i][j]: se a página j do processo i está na memória (1) ou não (0).
+  framePagina[i][j]: índice do frame físico onde a página está carregada (ou -1).
+  R_Pagina[i][j]: bit de referência usado no algoritmo Clock.
+  
 - Como organizou para múltiplos processos?
+  
+  A primeira dimensão é o índice do processo. idProcesso[i] contém o PID real; a busca de índice é feita por
+  buscaProcesso(id).
+   
 - **Justificativa:** Por que escolheu essa abordagem?
+
+  Matrizes fixas são simples, rápidas e permitem acesso O(1) para checar presença, recuperar frame e atualizar R-bit e
+  o trade-off é consumo de memória (espaço estático Max_PROCESSOS * MAX_PAGINAS), mas nas configurações típicas de simulação isto é
+  aceitável e facilita inicialização.
 
 **Frames Físicos:**
 - Como representou os frames da memória física?
+
+  idFrame[MAX_FRAMES] → PID do processo dono da página naquele frame (ou -1).
+  numPagina_Frame[MAX_FRAMES] → número da página carregada naquele frame (ou -1).
+  frameLivre[MAX_FRAMES] → 1 = livre, 0 = ocupado.
+  
 - Quais informações armazena para cada frame?
 - Como rastreia frames livres vs ocupados?
 - **Justificativa:** Por que escolheu essa abordagem?
