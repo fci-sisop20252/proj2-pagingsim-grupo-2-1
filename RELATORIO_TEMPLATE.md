@@ -52,45 +52,81 @@ Descreva as estruturas de dados que você escolheu para representar:
 
 **Tabela de Páginas:**
 - Qual estrutura usou? (array, lista, hash map, etc.)
-  R: Matrizes e arrays
+  
+  Matrizes e arrays
   
 - Quais informações armazena para cada página?
   
-  paginaCarregada[i][j]: se a página j do processo i está na memória (1) ou não (0).
-  framePagina[i][j]: índice do frame físico onde a página está carregada (ou -1).
+  paginaCarregada[i][j]: se a página j do processo i está na memória ou não.
+  framePagina[i][j]: índice do frame físico onde a página está carregada.
   R_Pagina[i][j]: bit de referência usado no algoritmo Clock.
   
 - Como organizou para múltiplos processos?
   
-  A primeira dimensão é o índice do processo. idProcesso[i] contém o PID real; a busca de índice é feita por
+  A primeira dimensão é o índice do processo. idProcesso contém o PID real e a busca de índice é feita por
   buscaProcesso(id).
    
 - **Justificativa:** Por que escolheu essa abordagem?
 
-  Matrizes fixas são simples, rápidas e permitem acesso O(1) para checar presença, recuperar frame e atualizar R-bit e
-  o trade-off é consumo de memória (espaço estático Max_PROCESSOS * MAX_PAGINAS), mas nas configurações típicas de simulação isto é
-  aceitável e facilita inicialização.
+  Matrizes fixas são simples, rápidas para checar presença, recuperar frame e atualizar R-bit e para simulações é prático e evita overhead
+  de estruturas dinâmicas.
 
 **Frames Físicos:**
 - Como representou os frames da memória física?
 
-  idFrame[MAX_FRAMES] → PID do processo dono da página naquele frame (ou -1).
-  numPagina_Frame[MAX_FRAMES] → número da página carregada naquele frame (ou -1).
-  frameLivre[MAX_FRAMES] → 1 = livre, 0 = ocupado.
+  idFrame[MAX_FRAMES]  PID do processo dono da página naquele frame.
+  numPagina_Frame[MAX_FRAMES]  número da página carregada naquele frame.
+  frameLivre[MAX_FRAMES] 1 = livre, 0 = ocupado.
   
 - Quais informações armazena para cada frame?
+
+  Identificador do processo (idFrame), número da página (numPagina_Frame) e flag livre/ocupado (frameLivre).
+  
 - Como rastreia frames livres vs ocupados?
+
+  frameLivre inteiro serve para buscar um frame livre com buscarFrameLivre() (varre frameLivre[i] == 1) e marcar frameLivre[f] = 0 ao
+  alocar.
+  
 - **Justificativa:** Por que escolheu essa abordagem?
 
+  Representação por arrays é direta e permite localizar rapidamente qual página está em cada frame, mantém
+  correspondência simples entre tabela de páginas e frames físicos e permite implementar facilmente algoritmos de substituição que precisam
+  inspecionar informações por frame.
+  
 **Estrutura para FIFO:**
 - Como mantém a ordem de chegada das páginas?
+
+  Um ponteiro circular posiFifo que aponta para o próximo frame vítima, a cada substituição selecionaVitimaFIFO() retorna posiFifo e
+  atualiza o posiFifo = (posiFifo + 1) % nFrame.
+  
 - Como identifica a página mais antiga?
+
+  A própria posição do ponteiro circular indica o frame que foi carregado há mais tempo (FIFO simples). Não se guarda
+  timestamp explícito — o avanço rotativo preserva ordem.
+  
 - **Justificativa:** Por que escolheu essa abordagem?
+
+  Porque é mais simples e eficiênte apenas um inteiro posiFifo e incremento modular e para simular FIFO sem necessidade de remover
+  itens do meio, isto é suficiente por substituição, e também evita estruturas mais pesadas porque o estado do sistema
+  já está mantido por arrays.
 
 **Estrutura para Clock:**
 - Como implementou o ponteiro circular?
+
+  posiClock é um índice que é avançado circularmente (posiClock = (posiClock + 1) % nFrame) dentro de selecionaVitimaClock() até encontrar    uma vítima.
+  
 - Como armazena e atualiza os R-bits?
+
+  Os R-bits estão em R_Pagina[proc_index][pagina], quando há acesso com HIT, a função clock() faz R_Pagina[idProc][pagina] = 1.
+  Ao inspecionar um frame candidato, selecionaVitimaClock() consulta R_Pagina[idProc][numPagina]
+
+  Se R == 0  escolhe o frame como vítima.
+  Se R == 1  zera R_Pagina = 0 e avança o ponteiro, dando "segunda chance".
+  
 - **Justificativa:** Por que escolheu essa abordagem?
+
+  Mantendo R-bit por entrada de página permite localizar o R correspondente ao conteúdo de cada frame via
+  idFrame e numPagina_Frame.
 
 ### 2.2 Organização do Código
 
@@ -100,26 +136,38 @@ Descreva como organizou seu código:
 - Qual a responsabilidade de cada arquivo/módulo?
 - Quais são as principais funções e o que cada uma faz?
 
-**Exemplo:**
-```
-simulador.c
-├── main() - lê argumentos e coordena execução
-├── ler_config() - processa arquivo de configuração
-├── processar_acessos() - loop principal de simulação
-├── traduzir_endereco() - calcula página e deslocamento
-├── consultar_tabela() - verifica se página está na memória
-├── tratar_page_fault() - lida com page faults
-├── algoritmo_fifo() - seleciona vítima usando FIFO
-└── algoritmo_clock() - seleciona vítima usando Clock
-```
+simuPagi.c
+├── main() - Lê argumentos, abre arquivos de configuração e acessos, inicializa estruturas e faz o loop de simulação.
+├── buscaProcesso(int id) - Retorna o índice do processo a partir do PID (idProcesso[i] == id).
+├── buscarFrameLivre() - Varre frameLivre[] e retorna índice de frame livre ou -1.
+├── selecionaVitimaFIFO() - Retorna posiFifo e avança o ponteiro.
+├── selecionaVitimaClock() - Implementa busca circular com segunda chance (usa R_Pagina).
+├── fifo(int id, int ende) - Simula um acesso usando FIFO: detecta HIT, aloca em frame livre, ou substitui via FIFO.
+├── clock(int id, int ende) - Simula um acesso usando Clock: atualiza R-bit em HIT; ao alocar em frame livre seta R=1; ao substituir, zera R-bit da antiga e seta R da nova.
 
 ### 2.3 Algoritmo FIFO
 
 Explique **como** implementou a lógica FIFO:
 
 - Como mantém o controle da ordem de chegada?
+
+  Uso de um ponteiro circular (posiFifo) que percorre os frames em ordem cíclica. Ao inserir uma página em memória,
+  o ponteiro indica qual frame ocupa-se como próxima vítima.
+  
 - Como seleciona a página vítima?
+
+  selecionaVitimaFIFO() retorna o frame apontado por posiFifo e avança posiFifo em 1. Aquele frame é considerado a página
+  mais antiga.
+  
 - Quais passos executa ao substituir uma página?
+
+  Ao detectar page fault e não haver frame livre:
+  Identificar o frame vítima via posiFifo.
+  Ler idFrame[vitima] e numPagina_Frame[vitima] para saber qual entrada da tabela de páginas limpar.
+  Marcar a página antiga como não carregada.
+  Atualizar idFrame[vitima] e numPagina_Frame[vitima] com o novo processo/página.
+  Marcar a nova página como carregada e registrar framePagina[id][pagina] = vitima.
+  Incrementar contadores de page fault.
 
 **Não cole código aqui.** Explique a lógica em linguagem natural.
 
@@ -128,9 +176,25 @@ Explique **como** implementou a lógica FIFO:
 Explique **como** implementou a lógica Clock:
 
 - Como gerencia o ponteiro circular?
+
+  Mantém um índice posiClock que aponta para o próximo frame a inspecionar, ele é avançado circularmente até encontrar uma vítima.
+  
 - Como implementou a "segunda chance"?
+
+  Para o frame apontado, obter o PID e o número da página e mapear para o índice do processo,então ler R_Pagina[idProc][pagina].
+  Se R == 0 escolhe esse frame como vítima.
+  Se R == 1 zera R_Pagina = 0 (retira a "segunda chance" e avança o ponteiro, continuando a busca. Assim a página recebe uma
+  "segunda chance" e só será removida na próxima volta se não for referenciada novamente.
+  
 - Como trata o caso onde todas as páginas têm R=1?
+
+  O ponteiro fará uma passagem completa; em cada visita encontrará R==1 e as zera, ao completar a volta, haverá frames com R==0 e um
+  deles será escolhido, a primeira volta transforma todos os R em 0; na volta seguinte encontra uma vítima.
+  
 - Como garante que o R-bit é setado em todo acesso?
+
+  Em cada acesso com HIT, o código define R_Pagina[idProc][pagina] = 1. Ao carregar uma página em frame livre ou por substituição, o R-bit
+  da nova página é inicializado para 1 e Ao descartar página, zera seu R-bit e marca paginaCarregada = 0.
 
 **Não cole código aqui.** Explique a lógica em linguagem natural.
 
@@ -140,12 +204,45 @@ Explique como seu código distingue e trata os dois cenários:
 
 **Cenário 1: Frame livre disponível**
 - Como identifica que há frame livre?
+
+  buscarFrameLivre() varre frameLivre[] e retorna índice f se frameLivre[f] == 1 e se f != -1 há frame livre.
+  
 - Quais passos executa para alocar a página?
+
+  frameLivre[f] = 0.
+  idFrame[f] = id e numPagina_Frame[f] = pagina.
+  paginaCarregada[idProc][pagina] = 1 e framePagina[idProc][pagina] = f.
+  No Clock, setar R_Pagina[idProc][pagina] = 1.
+  Incrementar total_faults e registrar informação de log.
 
 **Cenário 2: Memória cheia (substituição)**
 - Como identifica que a memória está cheia?
+  
+  buscarFrameLivre() retorna -1 → nenhum frame livre.
+  
 - Como decide qual algoritmo usar (FIFO vs Clock)?
+
+  O main() lê o primeiro argumento (argv[1]) — "fifo" ou "clock". No loop de acessos, chama fifo(id, ende) ou clock(id, ende) conforme
+  strcmp(alg, "fifo") / strcmp(alg, "clock").
+  
 - Quais passos executa para substituir uma página?
+
+  Escolher vítima:
+    FIFO: vitima = selecionaVitimaFIFO().
+    Clock: vitima = selecionaVitimaClock().
+  Desassociar página antiga:
+    Recuperar idAntigo = idFrame[vitima] e paginaAntiga = numPagina_Frame[vitima].
+    Determinar índice do processo antigo idProcAntigo = buscaProcesso(idAntigo).
+    paginaCarregada[idProcAntigo][paginaAntiga] = 0.
+    No Clock também R_Pagina[idProcAntigo][paginaAntiga] = 0.
+
+  Colocar nova página no frame vítima:
+    idFrame[vitima] = id, numPagina_Frame[vitima] = pagina,
+    paginaCarregada[idProc][pagina] = 1, framePagina[idProc][pagina] = vitima,
+    No Clock: R_Pagina[idProc][pagina] = 1.
+
+  Atualizar estatísticas:
+     incrementar total_faults.
 
 ---
 
