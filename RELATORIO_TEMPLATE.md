@@ -257,7 +257,7 @@ Preencha a tabela abaixo com os resultados de pelo menos 3 testes diferentes:
 | Teste 1 - Básico  |          8       |         5        |        5          |     0     |
 | Teste 2 - Memória Pequena |  10      |         10       |        10         |     0     |
 | Teste 3 - Simples |          7       |         4        |        4          |     0     |
-| Teste Próprio 1   |                  |                  |                   |           |
+| Teste Próprio 1   |          100     |         39       |        38         |     1     |
 
 ### 3.2 Análise
 
@@ -265,18 +265,29 @@ Com base nos resultados acima, responda:
 
 1. **Qual algoritmo teve melhor desempenho (menos page faults)?**
 
+  R: Clock
+
 2. **Por que você acha que isso aconteceu?** Considere:
    - Como cada algoritmo escolhe a vítima
    - O papel do R-bit no Clock
    - O padrão de acesso dos testes
 
+   R: Isso acontece porque no FIFO a vitima é sempre a primeira a ter entrado, mesmo que ela esteja sendo muito usada.
+   Já no clock, ele usa R-bit para verificar quem foi usado acessado recentemente e da uma segunda chance, então evita de remover pagínas bem acessadas e tende a diminuir os pages faults.
+
 3. **Em que situações Clock é melhor que FIFO?**
    - Dê exemplos de padrões de acesso onde Clock se beneficia
+
+   R: Clock é melhor principalmente quando existe localidade no padrão de acesso, por exemplo em loops que usam sempre o mesmo conjunto de pagínas e em cenarios em que pagínas antigas ainda continuam sendo usadas com frequència.
 
 4. **Houve casos onde FIFO e Clock tiveram o mesmo resultado?**
    - Por que isso aconteceu?
 
+   R: Sim, isso acontece devido a pouca quantidade de acessos e a quantidade de memoria ser suficiente pra guardar todas ou quase todas as pagínas.
+
 5. **Qual algoritmo você escolheria para um sistema real e por quê?**
+
+R: Escolheria o clock, pois em cenarios onde tende a ter mais acessos a politica de segunda vida do clock tende a ter um melhor desempenho, pois pagínas muito acessadas, mesmo que velhas, vão continuar na memoria e o clock já é usado em situações reais por SO's, já que é quase tão simples quanto o FIFO, porém melhor em média.
 
 ---
 
