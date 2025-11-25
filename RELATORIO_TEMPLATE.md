@@ -339,12 +339,12 @@ Descreva o principal aprendizado sobre gerenciamento de memória que vocês tive
 
 Confirme que o vídeo contém:
 
-- [ ] Demonstração da compilação do projeto
-- [ ] Execução do simulador com algoritmo FIFO
-- [ ] Execução do simulador com algoritmo Clock
-- [ ] Explicação da saída produzida
-- [ ] Comparação dos resultados FIFO vs Clock
-- [ ] Breve explicação de uma decisão de design importante
+- [X] Demonstração da compilação do projeto
+- [X] Execução do simulador com algoritmo FIFO
+- [X] Execução do simulador com algoritmo Clock
+- [X] Explicação da saída produzida
+- [X] Comparação dos resultados FIFO vs Clock
+- [X] Breve explicação de uma decisão de design importante
 
 ---
 
@@ -352,15 +352,15 @@ Confirme que o vídeo contém:
 
 Antes de submeter, verifique:
 
-- [ ] Código compila sem erros conforme instruções da seção 1.1
-- [ ] Simulador funciona corretamente com FIFO
-- [ ] Simulador funciona corretamente com Clock
-- [ ] Formato de saída segue EXATAMENTE a especificação do ENUNCIADO.md
-- [ ] Testamos com os casos fornecidos em tests/
-- [ ] Todas as seções deste relatório foram preenchidas
-- [ ] Análise comparativa foi realizada com dados reais
-- [ ] Vídeo de demonstração foi gravado e link está funcionando
-- [ ] Todos os integrantes participaram e concordam com a submissão
+- [X] Código compila sem erros conforme instruções da seção 1.1
+- [X] Simulador funciona corretamente com FIFO
+- [X] Simulador funciona corretamente com Clock
+- [X] Formato de saída segue EXATAMENTE a especificação do ENUNCIADO.md
+- [X] Testamos com os casos fornecidos em tests/
+- [X] Todas as seções deste relatório foram preenchidas
+- [X] Análise comparativa foi realizada com dados reais
+- [X] Vídeo de demonstração foi gravado e link está funcionando
+- [X] Todos os integrantes participaram e concordam com a submissão
 
 ---
 ## Referências
